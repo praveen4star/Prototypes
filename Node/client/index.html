@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<h1>Hello World</h1>
+		<button id="start-button" onclick="getEventId()">Start</button>
+		<ul id="deployment-list"></ul>
+		<script>
+			function startEventSource() {
+				const eventSource = new EventSource('http://localhost:3000/events');
+				const messagesList = document.getElementById('messages-list');
+				eventSource.onmessage = function (event) {
+					const message = document.createElement('li');
+					message.textContent = event.data;
+					messagesList.appendChild(message);
+				};
+				eventSource.onerror = function (event) {
+					console.log('Error', event);
+				};
+			}
+			function getEventId() {
+				fetch('http://localhost:3000/events', {
+					method: 'POST'
+				})
+					.then(response => response.json())
+					.then(data => {
+						const deploymentList = document.getElementById('deployment-list');
+						const deploymentItem = document.createElement('li');
+						const deploymentId = data.id;
+						const link = document.createElement('a');
+						link.href = `http://localhost:3000/events/${deploymentId}`;
+						link.target = '_blank';
+						link.textContent = deploymentId;
+						deploymentItem.appendChild(link);
+						deploymentList.appendChild(deploymentItem);
+					});
+			}
+		</script>
+	</body>
+</html>
